@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
+final isCurrentDateAddProvider = StateProvider((ref) => false);
+
 class CalendarListDialog extends ConsumerWidget {
   const CalendarListDialog({super.key, required this.cacheDate});
 
@@ -50,6 +52,16 @@ class CalendarListDialog extends ConsumerWidget {
                       ),
                       IconButton(
                           onPressed: () {
+                            if (currentDate.day == DateTime.now().day) {
+                              ref
+                                  .read(isCurrentDateAddProvider.notifier)
+                                  .state = true;
+                            } else {
+                              ref
+                                  .read(isCurrentDateAddProvider.notifier)
+                                  .state = false;
+                            }
+
                             Navigator.pushNamed(context, "/AddingPage",
                                 arguments: currentDate);
                           },

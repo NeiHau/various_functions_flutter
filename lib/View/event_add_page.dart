@@ -1,3 +1,4 @@
+import 'package:calendar_app_remake/View/component/calendar_event_dialog.dart';
 import 'package:calendar_app_remake/database/todo_item_data_crud.dart';
 import 'package:calendar_app_remake/domain/calendar_event.dart';
 import 'package:calendar_app_remake/repository/event_crud_provider.dart';
@@ -131,6 +132,9 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
 
   // 開始日、終了日を入力するためのメソッド。
   Widget selectShujitsuDay() {
+    bool isCurrentDate = ref.watch(isCurrentDateAddProvider);
+    var now = DateTime.now();
+
     return Card(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -143,17 +147,28 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
             title: const Text('開始'),
             trailing: TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.black),
-              child: Text(isAllDay
-                  ? DateFormat('yyyy-MM-dd').format(startDate)
-                  : DateFormat('yyyy-MM-dd HH:mm').format(startDate)),
+              child: Text(
+                isAllDay
+                    ? DateFormat('yyyy-MM-dd').format(startDate)
+                    : isCurrentDate
+                        ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())
+                        : DateFormat('yyyy-MM-dd HH:mm').format(startDate),
+              ),
               onPressed: () {
                 cupertinoDatePicker(CupertinoDatePicker(
-                  initialDateTime: DateTime(
-                    startDate.year,
-                    startDate.month,
-                    startDate.day,
-                    startDate.hour,
-                  ),
+                  initialDateTime: isCurrentDate
+                      ? DateTime(
+                          now.year,
+                          now.month,
+                          now.day,
+                          now.hour,
+                        )
+                      : DateTime(
+                          startDate.year,
+                          startDate.month,
+                          startDate.day,
+                          startDate.hour,
+                        ),
                   onDateTimeChanged: (value) {
                     temp = temp.copyWith(startDate: value);
                     setState(() {
@@ -175,15 +190,28 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
               style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: Text(isAllDay
                   ? DateFormat('yyyy-MM-dd').format(endDate)
-                  : DateFormat('yyyy-MM-dd HH:mm').format(endDate)),
+                  : isCurrentDate
+                      ? DateFormat('yyyy-MM-dd HH:mm').format(
+                          DateTime.now().add(
+                            const Duration(hours: 2),
+                          ),
+                        )
+                      : DateFormat('yyyy-MM-dd HH:mm').format(endDate)),
               onPressed: () {
                 cupertinoDatePicker(CupertinoDatePicker(
-                  initialDateTime: DateTime(
-                    endDate.year,
-                    endDate.month,
-                    endDate.day,
-                    endDate.hour,
-                  ),
+                  initialDateTime: isCurrentDate
+                      ? DateTime(
+                          now.year,
+                          now.month,
+                          now.day,
+                          now.hour,
+                        ).add(const Duration(hours: 2))
+                      : DateTime(
+                          endDate.year,
+                          endDate.month,
+                          endDate.day,
+                          endDate.hour,
+                        ),
                   onDateTimeChanged: (value) {
                     temp = temp.copyWith(endDate: value);
                     setState(() {

@@ -132,9 +132,11 @@ class EventEditingPageState extends ConsumerState<EventEditingPage> {
             title: const Text('開始'),
             trailing: TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.black),
-              child: Text(temp.isAllDay
-                  ? DateFormat('yyyy-MM-dd').format(temp.startDate)
-                  : DateFormat('yyyy-MM-dd HH:mm').format(temp.startDate)),
+              child: Text(
+                temp.isAllDay
+                    ? DateFormat('yyyy-MM-dd').format(temp.startDate)
+                    : DateFormat('yyyy-MM-dd HH:mm').format(temp.startDate),
+              ),
               onPressed: () {
                 cupertinoDatePicker(CupertinoDatePicker(
                   initialDateTime: DateTime(

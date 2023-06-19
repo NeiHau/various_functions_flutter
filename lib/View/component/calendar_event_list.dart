@@ -5,7 +5,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class CalendarEventListView extends ConsumerWidget {
-  CalendarEventListView({required this.currentDate, super.key});
+  CalendarEventListView({
+    required this.currentDate,
+    super.key,
+  });
 
   final DateTime currentDate;
   List<Widget> list = []; // １日から最終日を格納するリスト。
@@ -48,8 +51,9 @@ class CalendarEventListView extends ConsumerWidget {
           ),
         )),
         child: GestureDetector(
-          onTap: () =>
-              Navigator.pushNamed(context, "/EditingPage", arguments: item),
+          onTap: () {
+            Navigator.pushNamed(context, "/EditingPage", arguments: item);
+          },
           child: ListTile(
             tileColor: Colors.white,
             leading: (item.isAllDay == true)

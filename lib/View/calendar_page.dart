@@ -43,6 +43,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   final distance = initialPage - value;
                   return DateTime(now.year, now.month - distance);
                 });
+                //
                 // print(ref.read(foucusedDayProvider.notifier).state);
               },
             ),

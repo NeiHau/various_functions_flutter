@@ -39,10 +39,10 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
     final eventState = ref.read(eventStateProvider.notifier);
     eventState.readDataMap();
 
+    selectedDate = ref.read(foucusedDayProvider.notifier).state;
+
     final initialPageCount = getPageCount(firstDay, selectedDate);
     prevPage = initialPageCount;
-
-    selectedDate = ref.read(foucusedDayProvider.notifier).state;
 
     super.initState();
   }

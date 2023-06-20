@@ -28,9 +28,10 @@ class CalendarDateWidget extends ConsumerStatefulWidget {
 
 class CalendarState extends ConsumerState<CalendarDateWidget> {
   final List<String> _weekName = ['月', '火', '水', '木', '金', '土', '日'];
-  late DateTime selectedDate;
   final int _monthDuration = 0;
   final firstDay = DateTime(1970);
+
+  late DateTime selectedDate;
   late int prevPage;
 
   @override
@@ -38,9 +39,11 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
     final eventState = ref.read(eventStateProvider.notifier);
     eventState.readDataMap();
 
-    selectedDate = ref.read(foucusedDayProvider.notifier).state;
     final initialPageCount = getPageCount(firstDay, selectedDate);
     prevPage = initialPageCount;
+
+    selectedDate = ref.read(foucusedDayProvider.notifier).state;
+
     super.initState();
   }
 
@@ -48,7 +51,9 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 6),
         currentMonth(ref),
+        const SizedBox(height: 8),
         dayOfWeek(ref),
         const SizedBox(height: 10),
         Expanded(child: createCalendar(ref)),
@@ -246,7 +251,7 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
             Row(
               children: listCache,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
           ],
         ));
         listCache = [];

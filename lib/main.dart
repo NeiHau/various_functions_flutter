@@ -17,6 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
         designSize: const Size(375, 660),
+        splitScreenMode: false,
+        minTextAdapt: true,
         builder: (context, child) {
           return MaterialApp(
             localizationsDelegates: const [

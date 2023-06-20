@@ -6,7 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
+
+import '../repository/calendar_event_state_provider.dart';
 
 class EventAddingPage extends ConsumerStatefulWidget {
   const EventAddingPage({
@@ -25,26 +26,6 @@ class EventAddingPage extends ConsumerStatefulWidget {
 class EventAddingPageState extends ConsumerState<EventAddingPage> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
-  DateTime startDate = DateTime.now();
-  DateTime endDate = DateTime.now();
-  bool isAllDay = false;
-  static var uuid = const Uuid(); // idを取得
-  CalendarEvent temp = CalendarEvent(
-      id: uuid.v1(),
-      startDate: DateTime.now(),
-      endDate: DateTime.now(),
-      title: '',
-      description: '',
-      isAllDay: false); //frezzedで格納した値をインスタンス化
-
-  @override
-  void initState() {
-    startDate = widget.currentDate;
-    endDate = startDate.add(const Duration(hours: 2));
-    temp = temp.copyWith(startDate: startDate, endDate: endDate);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,62 +57,70 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
   }
 
   // 「保存」ボタンを表示させるためのメソッド。
-  List<Widget> buildEditingActions() => [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 5, 10),
-          child: TextButton(
-            onPressed: (temp.title == '' || temp.description == '')
-                ? null
-                : () {
-                    TodoItemData data = TodoItemData(
-                      id: temp.id,
-                      title: temp.title,
-                      description: temp.description,
-                      startDate: temp.startDate,
-                      endDate: temp.endDate,
-                      shujitsuBool: temp.isAllDay,
-                    );
+  List<Widget> buildEditingActions() {
+    final state = ref.watch(calendarEventProvider);
 
-                    //print(data);
-                    // 'todoprovider'でProviderのメソッドや値を取得。
-                    final todoProvider =
-                        ref.watch(todoDatabaseProvider.notifier);
-                    todoProvider.writeData(data);
+    return [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 5, 10),
+        child: TextButton(
+          onPressed: (state.title == '' || state.description == '')
+              ? null
+              : () {
+                  TodoItemData data = TodoItemData(
+                    id: state.id,
+                    title: state.title,
+                    description: state.description,
+                    startDate: state.startDate,
+                    endDate: state.endDate,
+                    shujitsuBool: state.isAllDay,
+                  );
 
-                    Navigator.popUntil(context, ModalRoute.withName("/"));
-                  },
-            style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.white)),
-            child: const Text('保存'),
-          ),
+                  //print(data);
+                  // 'todoprovider'でProviderのメソッドや値を取得。
+                  final todoProvider = ref.watch(todoDatabaseProvider.notifier);
+                  todoProvider.writeData(data);
+
+                  Navigator.popUntil(context, ModalRoute.withName("/"));
+                },
+          style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.white)),
+          child: const Text('保存'),
         ),
-      ];
+      ),
+    ];
+  }
 
   // タイトルに入力をするためのメソッド。
-  Widget buildTitle() => Card(
-        child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 7, 5, 5),
-            child: TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  temp = temp.copyWith(title: value);
-                });
-              },
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                  overflow: TextOverflow.ellipsis),
-              decoration: const InputDecoration(
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  border: UnderlineInputBorder(),
-                  hintText: 'タイトルを入力してください'),
-            )),
-      );
+  Widget buildTitle() {
+    var state = ref.watch(calendarEventProvider);
+
+    return Card(
+      child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 7, 5, 5),
+          child: TextFormField(
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                overflow: TextOverflow.ellipsis),
+            decoration: const InputDecoration(
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                border: UnderlineInputBorder(),
+                hintText: 'タイトルを入力してください'),
+            onChanged: (value) {
+              setState(() {
+                state = state.copyWith(title: value);
+              });
+              ref.read(calendarEventProvider.notifier).updateTitle(value);
+            },
+          )),
+    );
+  }
 
   // 開始日、終了日を入力するためのメソッド。
   Widget selectShujitsuDay() {
+    var state = ref.watch(calendarEventProvider);
     bool isCurrentDate = ref.watch(isCurrentDateAddProvider);
     var now = DateTime.now();
 
@@ -148,11 +137,12 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
             trailing: TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.black),
               child: Text(
-                isAllDay
-                    ? DateFormat('yyyy-MM-dd').format(startDate)
+                state.isAllDay
+                    ? DateFormat('yyyy-MM-dd').format(state.startDate)
                     : isCurrentDate
                         ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())
-                        : DateFormat('yyyy-MM-dd HH:mm').format(startDate),
+                        : DateFormat('yyyy-MM-dd HH:mm')
+                            .format(state.startDate),
               ),
               onPressed: () {
                 cupertinoDatePicker(CupertinoDatePicker(
@@ -164,19 +154,21 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
                           now.hour,
                         )
                       : DateTime(
-                          startDate.year,
-                          startDate.month,
-                          startDate.day,
-                          startDate.hour,
+                          state.startDate.year,
+                          state.startDate.month,
+                          state.startDate.day,
+                          state.startDate.hour,
                         ),
                   onDateTimeChanged: (value) {
-                    temp = temp.copyWith(startDate: value);
                     setState(() {
-                      startDate = value;
+                      state = state.copyWith(startDate: value);
                     });
+                    ref
+                        .read(calendarEventProvider.notifier)
+                        .updateStartDate(value);
                   },
                   use24hFormat: true,
-                  mode: isAllDay
+                  mode: state.isAllDay
                       ? CupertinoDatePickerMode.date
                       : CupertinoDatePickerMode.dateAndTime,
                   minuteInterval: 15,
@@ -188,15 +180,15 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
             title: const Text('終了'),
             trailing: TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.black),
-              child: Text(isAllDay
-                  ? DateFormat('yyyy-MM-dd').format(endDate)
+              child: Text(state.isAllDay
+                  ? DateFormat('yyyy-MM-dd').format(state.endDate)
                   : isCurrentDate
                       ? DateFormat('yyyy-MM-dd HH:mm').format(
                           DateTime.now().add(
                             const Duration(hours: 2),
                           ),
                         )
-                      : DateFormat('yyyy-MM-dd HH:mm').format(endDate)),
+                      : DateFormat('yyyy-MM-dd HH:mm').format(state.endDate)),
               onPressed: () {
                 cupertinoDatePicker(CupertinoDatePicker(
                   initialDateTime: isCurrentDate
@@ -207,19 +199,21 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
                           now.hour,
                         ).add(const Duration(hours: 2))
                       : DateTime(
-                          endDate.year,
-                          endDate.month,
-                          endDate.day,
-                          endDate.hour,
+                          state.endDate.year,
+                          state.endDate.month,
+                          state.endDate.day,
+                          state.endDate.hour,
                         ),
                   onDateTimeChanged: (value) {
-                    temp = temp.copyWith(endDate: value);
                     setState(() {
-                      endDate = value;
+                      state = state.copyWith(endDate: value);
                     });
+                    ref
+                        .read(calendarEventProvider.notifier)
+                        .updateEndDate(value);
                   },
                   use24hFormat: true,
-                  mode: isAllDay
+                  mode: state.isAllDay
                       ? CupertinoDatePickerMode.date
                       : CupertinoDatePickerMode.dateAndTime,
                   minuteInterval: 15,
@@ -234,27 +228,32 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
 
   // 終日スイッチ
   Switch createSwitch(int index) {
+    var state = ref.watch(calendarEventProvider);
+
     return Switch(
-      value: temp.isAllDay,
+      value: state.isAllDay,
       onChanged: (value) {
-        temp = temp.copyWith(isAllDay: value);
         setState(() {
-          isAllDay = value;
+          state = state.copyWith(isAllDay: value);
         });
+        ref.read(calendarEventProvider.notifier).updateIsAllDay(value);
       },
     );
   }
 
   // コメントを入力
   Widget buildDescription() {
+    var state = ref.watch(calendarEventProvider);
+
     return Card(
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 7, 5, 5),
         child: TextFormField(
           onChanged: (value) {
             setState(() {
-              temp = temp.copyWith(description: value);
+              state = state.copyWith(description: value);
             });
+            ref.read(calendarEventProvider.notifier).updateDescription(value);
           },
           style: const TextStyle(fontSize: 12),
           decoration: const InputDecoration(
@@ -271,6 +270,8 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
 
   // 開始日と終了日を選択する際に用いるDatePickerを表示させるメソッド。
   Future<void> cupertinoDatePicker(Widget child) async {
+    var state = ref.watch(calendarEventProvider);
+
     showCupertinoModalPopup(
         context: context,
         builder: (BuildContext context) => Container(
@@ -295,25 +296,26 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
                         TextButton(
                             onPressed: () {
                               final isEndTimeBefore =
-                                  endDate.isBefore(startDate);
-                              final isEqual = endDate.microsecondsSinceEpoch ==
-                                  startDate.millisecondsSinceEpoch;
+                                  state.endDate.isBefore(state.startDate);
+                              final isEqual =
+                                  state.endDate.microsecondsSinceEpoch ==
+                                      state.startDate.millisecondsSinceEpoch;
 
-                              if (isAllDay) {
+                              if (state.isAllDay) {
                                 if (isEndTimeBefore || isEqual) {
                                   setState(() {
-                                    endDate = startDate;
-                                    temp = temp.copyWith(endDate: startDate);
+                                    state = state.copyWith(
+                                        endDate: state.startDate);
                                   });
                                 }
                               } else {
                                 if (isEndTimeBefore || isEqual) {
                                   setState(() {
-                                    temp = temp.copyWith(
-                                        endDate: startDate
-                                            .add(const Duration(hours: 1)));
-                                    endDate =
-                                        startDate.add(const Duration(hours: 1));
+                                    state = state.copyWith(
+                                      endDate: state.startDate.add(
+                                        const Duration(hours: 1),
+                                      ),
+                                    );
                                   });
                                 }
                               }

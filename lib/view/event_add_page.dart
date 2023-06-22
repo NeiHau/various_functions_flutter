@@ -25,7 +25,16 @@ class EventAddingPage extends ConsumerStatefulWidget {
 
 class EventAddingPageState extends ConsumerState<EventAddingPage> {
   final _formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +45,7 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
           child: Text('予定の追加'),
         ),
         leading: const CloseButton(),
-        actions: buildEditingActions(),
+        actions: storeCalendarEvent(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
@@ -45,10 +54,10 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              buildTitle(), // タイトルを入力
-              sizedBox(), // 余白を生成する
+              inputTitle(), // タイトルを入力
+              const SizedBox(height: 25, width: 10), // 余白を生成する
               selectShujitsuDay(), // 開始日・終了日を選択
-              buildDescription(), // コメントを入力
+              inputDescription(), // コメントを入力
             ],
           ),
         ),
@@ -57,7 +66,7 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
   }
 
   // 「保存」ボタンを表示させるためのメソッド。
-  List<Widget> buildEditingActions() {
+  List<Widget> storeCalendarEvent() {
     final state = ref.watch(calendarEventProvider);
 
     return [
@@ -92,13 +101,15 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
   }
 
   // タイトルに入力をするためのメソッド。
-  Widget buildTitle() {
+  Widget inputTitle() {
     var state = ref.watch(calendarEventProvider);
 
     return Card(
       child: Container(
           padding: const EdgeInsets.fromLTRB(10, 7, 5, 5),
           child: TextFormField(
+            textInputAction: TextInputAction.search,
+            controller: _titleController,
             style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
@@ -120,9 +131,9 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
 
   // 開始日、終了日を入力するためのメソッド。
   Widget selectShujitsuDay() {
+    var now = DateTime.now();
     var state = ref.watch(calendarEventProvider);
     bool isCurrentDate = ref.watch(isCurrentDateAddProvider);
-    var now = DateTime.now();
 
     return Card(
       child: Column(
@@ -130,7 +141,7 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
         children: [
           ListTile(
             title: const Text('終日'),
-            trailing: createSwitch(0),
+            trailing: selectSwitch(0),
           ),
           ListTile(
             title: const Text('開始'),
@@ -227,7 +238,7 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
   }
 
   // 終日スイッチ
-  Switch createSwitch(int index) {
+  Switch selectSwitch(int index) {
     var state = ref.watch(calendarEventProvider);
 
     return Switch(
@@ -242,13 +253,14 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
   }
 
   // コメントを入力
-  Widget buildDescription() {
+  Widget inputDescription() {
     var state = ref.watch(calendarEventProvider);
 
     return Card(
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 7, 5, 5),
         child: TextFormField(
+          controller: _descriptionController,
           onChanged: (value) {
             setState(() {
               state = state.copyWith(description: value);
@@ -273,66 +285,62 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
     var state = ref.watch(calendarEventProvider);
 
     showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) => Container(
-              height: 280,
-              padding: const EdgeInsets.only(top: 6),
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              color: CupertinoColors.systemBackground.resolveFrom(context),
-              child: Column(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 280,
+        padding: const EdgeInsets.only(top: 6),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('キャンセル')),
-                        TextButton(
-                            onPressed: () {
-                              final isEndTimeBefore =
-                                  state.endDate.isBefore(state.startDate);
-                              final isEqual =
-                                  state.endDate.microsecondsSinceEpoch ==
-                                      state.startDate.millisecondsSinceEpoch;
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('キャンセル')),
+                  TextButton(
+                      onPressed: () {
+                        final isEndTimeBefore =
+                            state.endDate.isBefore(state.startDate);
+                        final isEqual = state.endDate.microsecondsSinceEpoch ==
+                            state.startDate.millisecondsSinceEpoch;
 
-                              if (state.isAllDay) {
-                                if (isEndTimeBefore || isEqual) {
-                                  setState(() {
-                                    state = state.copyWith(
-                                        endDate: state.startDate);
-                                  });
-                                }
-                              } else {
-                                if (isEndTimeBefore || isEqual) {
-                                  setState(() {
-                                    state = state.copyWith(
-                                      endDate: state.startDate.add(
-                                        const Duration(hours: 1),
-                                      ),
-                                    );
-                                  });
-                                }
-                              }
-                              Navigator.pop(context);
-                            },
-                            child: const Text('完了'))
-                      ],
-                    ),
-                  ),
-                  Expanded(child: SafeArea(top: false, child: child)),
+                        if (state.isAllDay) {
+                          if (isEndTimeBefore || isEqual) {
+                            setState(() {
+                              state = state.copyWith(endDate: state.startDate);
+                            });
+                          }
+                        } else {
+                          if (isEndTimeBefore || isEqual) {
+                            setState(() {
+                              state = state.copyWith(
+                                endDate: state.startDate.add(
+                                  const Duration(hours: 1),
+                                ),
+                              );
+                            });
+                          }
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: const Text('完了'))
                 ],
               ),
-            ));
-  }
-
-  // 余白を作るためのメソッド。
-  Widget sizedBox() {
-    return const SizedBox(height: 25, width: 10);
+            ),
+            Expanded(
+              child: SafeArea(top: false, child: child),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

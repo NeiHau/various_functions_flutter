@@ -9,6 +9,5 @@ class CalendarTodoStateMap with _$CalendarTodoStateMap {
   factory CalendarTodoStateMap({
     ///Map<日付:イベント>
     @Default({}) Map<DateTime, List<CalendarEvent>> todoItemsMap,
-    //const factory @Default(true) Assert
   }) = _CalendarTodoStateMap;
 }

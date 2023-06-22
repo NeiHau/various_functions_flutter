@@ -10,10 +10,10 @@ class CalendarPage extends ConsumerStatefulWidget {
 }
 
 class _CalendarPageState extends ConsumerState<CalendarPage> {
-  DateTime now = DateTime.now();
-  late final PageController calendarController;
   int initialPage = 0;
+  DateTime now = DateTime.now();
   final DateTime firstDay = DateTime(1970, 1, 1);
+  late final PageController calendarController;
 
   @override
   void initState() {

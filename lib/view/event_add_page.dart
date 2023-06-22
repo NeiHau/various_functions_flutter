@@ -90,10 +90,14 @@ class EventAddingPageState extends ConsumerState<EventAddingPage> {
                   final todoProvider = ref.watch(todoDatabaseProvider.notifier);
                   todoProvider.writeData(data);
 
-                  Navigator.popUntil(context, ModalRoute.withName("/"));
+                  Navigator.popUntil(
+                    context,
+                    ModalRoute.withName("/"),
+                  );
                 },
           style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.white)),
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          ),
           child: const Text('保存'),
         ),
       ),

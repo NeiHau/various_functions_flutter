@@ -44,12 +44,13 @@ class CalendarEventListView extends ConsumerWidget {
     for (CalendarEvent item in currentEvents) {
       Widget tile = Container(
         decoration: BoxDecoration(
-            border: Border(
-          bottom: BorderSide(
-            width: 0,
-            color: Colors.grey[200]!,
+          border: Border(
+            bottom: BorderSide(
+              width: 0,
+              color: Colors.grey[200]!,
+            ),
           ),
-        )),
+        ),
         child: GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, "/EditingPage", arguments: item);
@@ -61,8 +62,12 @@ class CalendarEventListView extends ConsumerWidget {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(DateFormat('HH:mm').format(item.startDate)),
-                      Text(DateFormat('HH:mm').format(item.endDate)),
+                      Text(
+                        DateFormat('HH:mm').format(item.startDate),
+                      ),
+                      Text(
+                        DateFormat('HH:mm').format(item.endDate),
+                      ),
                     ],
                   ),
             title: Row(

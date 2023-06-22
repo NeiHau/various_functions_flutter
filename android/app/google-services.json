@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "568262989806",
+    "project_id": "variousfunctionsflutter",
+    "storage_bucket": "variousfunctionsflutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568262989806:android:89f91052eeee7678d920ff",
+        "android_client_info": {
+          "package_name": "com.example.calendar_app_remake"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "568262989806-d1hs1mv6ou275sn0ua13ha9edu9cbkjn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX7AWrFoeuIoF4FC1jytfvWzAIvqu27Hs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "568262989806-d1hs1mv6ou275sn0ua13ha9edu9cbkjn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "568262989806-midrnv1vmsnsclm425rplucjghkf4t5p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.calendarAppRemake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

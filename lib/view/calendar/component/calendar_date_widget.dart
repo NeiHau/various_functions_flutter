@@ -1,5 +1,5 @@
-import 'package:calendar_app_remake/View/component/calendar_event_dialog.dart';
 import 'package:calendar_app_remake/repository/event_map_provider.dart';
+import 'package:calendar_app_remake/view/calendar/component/calendar_event_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';

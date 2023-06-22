@@ -1,14 +1,15 @@
-import 'package:calendar_app_remake/View/calendar_page.dart';
-import 'package:calendar_app_remake/View/component/calendar_event_dialog.dart';
-import 'package:calendar_app_remake/View/event_add_page.dart';
-import 'package:calendar_app_remake/View/event_edit_page.dart';
 import 'package:calendar_app_remake/domain/calendar_event.dart';
+import 'package:calendar_app_remake/view/calendar/calendar_page.dart';
+import 'package:calendar_app_remake/view/calendar/component/calendar_event_dialog.dart';
+import 'package:calendar_app_remake/view/calendar/component/calendar_event_list.dart';
+import 'package:calendar_app_remake/view/calendar/event_add_page.dart';
+import 'package:calendar_app_remake/view/calendar/event_edit_page.dart';
+import 'package:calendar_app_remake/view/home/home_page.dart';
 import 'package:flutter/material.dart';
 
-import '../View/component/calendar_event_list.dart';
-
 class RouteGenerator {
-  static const String calendarPage = '/home';
+  static const String homePage = '/home';
+  static const String calendarPage = '/calendarPage';
   static const String calendarEventList = '/EventList';
   static const String eventAddingPage = '/AddingPage';
   static const String eventEditingPage = '/EditingPage';
@@ -16,6 +17,10 @@ class RouteGenerator {
 
   static Route<dynamic> generatedRoute(RouteSettings settings) {
     switch (settings.name) {
+      case homePage:
+        return MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        );
       case calendarPage:
         return MaterialPageRoute(
           builder: (context) => const CalendarPage(),

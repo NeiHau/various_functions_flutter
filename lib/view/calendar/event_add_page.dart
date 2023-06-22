@@ -1,13 +1,13 @@
-import 'package:calendar_app_remake/View/component/calendar_event_dialog.dart';
 import 'package:calendar_app_remake/database/todo_item_data_crud.dart';
 import 'package:calendar_app_remake/domain/calendar_event.dart';
 import 'package:calendar_app_remake/repository/event_crud_provider.dart';
+import 'package:calendar_app_remake/view/calendar/component/calendar_event_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../repository/calendar_event_state_provider.dart';
+import '../../repository/calendar_event_state_provider.dart';
 
 class EventAddingPage extends ConsumerStatefulWidget {
   const EventAddingPage({

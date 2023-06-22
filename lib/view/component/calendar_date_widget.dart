@@ -127,6 +127,7 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
     List<Widget> weekList = [];
     int weekIndex = ref.read(weekDayProvider); //初期値
     int counter = 0;
+
     while (counter < 7) {
       weekList.add(
         Expanded(
@@ -158,6 +159,7 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
   Widget createCalendarDate(WidgetRef ref) {
     final dataMap = ref.watch(eventStateProvider).todoItemsMap;
     final focusedDay = ref.watch(foucusedDayProvider);
+    final weekDay = ref.read(weekDayProvider);
     List<Widget> list = []; // カレンダーの日数全てを含むリスト。1日〜月の最終日まで。
 
     // 月の最初の日。
@@ -205,7 +207,7 @@ class CalendarState extends ConsumerState<CalendarDateWidget> {
 
       if (DateTime(firstDayOfTheMonth.year, firstDayOfTheMonth.month, i)
                   .weekday ==
-              newLineNumber(ref.read(weekDayProvider) + 1) ||
+              newLineNumber(weekDay + 1) ||
           i == monthLastNumber) {
         int repeatNumber = 7 - listCache.length;
 
